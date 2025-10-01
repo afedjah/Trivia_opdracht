@@ -1,0 +1,50 @@
+ <div class="container mt-5">
+  @if (!isGameStarted) {
+    <div class="card p-4">
+      <h2 class="mb-3">Trivia spel</h2>
+      <h5 class="mb-3">Kies een categorie en het aantal vragen.</h5>
+      <label>Categorie:</label>
+      <select class="form-select" [(ngModel)]="selectedCategory">
+        @for (cat of categories; track cat.name) {
+          <option [value]="cat.id">{{cat.name}}</option>
+        }
+      </select>
+
+      <label class="mt-3">Aantal vragen:</label>
+      <input type="number" class="form-control" [(ngModel)]="amount" min="1" max="50">
+
+      <button class="btn btn-primary mt-3" (click)="startGame()" [disabled]="!selectedCategory || !amount">Start spel</button>
+    </div>
+  }
+
+  @else {
+    <div class="card p-4 mt-4">
+      <h2>Vraag {{currentIndex + 1}} / {{questions.length}}</h2>
+      <h3>{{questions[currentIndex].question}}</h3>
+
+      <div class="d-flex flex-column mt-3">
+        @for (answer of questions[currentIndex].answers; track $index) {
+          <button class="btn btn-outline-secondary mb-2" 
+                  [class.active]="selectedAnswer === answer" 
+                  (click)="selectAnswer(answer)">
+            {{answer}}
+          </button>
+        }
+      </div>
+
+      @if (!feedback) {
+        <button class="btn btn-success mt-3" (click)="submitAnswer()" [disabled]="!selectedAnswer">Bevestig antwoord</button>
+      }
+
+      @if (feedback) {
+        <p class="mt-3">{{feedback}}</p>
+        <button class="btn btn-primary mt-2" (click)="nextQuestion()">
+          {{currentIndex + 1 >= questions.length ? 'Eindig spel' : 'Volgende vraag'}}
+        </button>
+      }
+
+      <p class="mt-3">Juist: {{rightAnswersCount}} | Fout: {{wrongAnswersCount}}</p>
+    </div>
+  }
+</div>
+
