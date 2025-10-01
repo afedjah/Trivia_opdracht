@@ -4,8 +4,8 @@ packages = ["openjdk21", "nodejs"]
 
 [phases.build]
 commands = [
-    "chmod +x Trivia_backend/mvnw",
-    "cd Trivia_backend && ./mvnw clean package -DskipTests",
+    "chmod +x Trivia_backend/demo/mvnw",
+    "cd Trivia_backend/demo && ./mvnw clean package -DskipTests",
     "cd trivia-frontend && npm install && npm run build"
 ]
 
