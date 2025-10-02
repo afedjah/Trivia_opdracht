@@ -5,13 +5,12 @@ import { QuestionDTO } from "../models/question.dto";
 import { AnswerDTO } from "../models/answer.dto";
 import { TriviaCategory } from "../models/category.dto";
 import { SessionService } from "./trivia.session.service";
-import { environment } from "../environment/environment";
 
 @Injectable({
     providedIn: 'root'
 })
 export class TriviaQuestionService{
-    private apiUrl = environment.apiUrl;
+    private apiUrl = "https://triviabackend-production.up.railway.app";
     constructor(private http: HttpClient, private sessionService:SessionService){}
 
     getCategories() : Observable<TriviaCategory[]>{
