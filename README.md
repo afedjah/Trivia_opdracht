@@ -47,9 +47,9 @@ The frontend is the web application that communicates with the backend.
 Local Build and Run
 Navigate to the Frontend Folder:
 
-### Assuming you are in the 'Trivia_backend' folder
+### Assuming you are in the 'Trivia_backend/demo' folder
 ```
-cd ../trivia-frontend
+cd ../../trivia-frontend
 ```
 Install Dependencies: Install all necessary Node modules:
 ```
