@@ -1,0 +1,10 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "name": "Trivia Backend",
+  "projectPath": "Trivia_backend/demo", 
+  "build": {
+    "language": "java",
+    "version": "21", 
+    "buildTool": "maven"
+  }
+}
