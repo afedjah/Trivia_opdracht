@@ -1,7 +1,7 @@
 echo "Starting Trivia Backend..."
 cd Trivia_backend/demo
-#./mvnw clean package -DskipTests
-mvn clean package -DskipTests
+./mvnw clean package -DskipTests
+#mvn clean package -DskipTests
 java -jar target/demo-0.0.1-SNAPSHOT.jar & 
 
 cd ../..
