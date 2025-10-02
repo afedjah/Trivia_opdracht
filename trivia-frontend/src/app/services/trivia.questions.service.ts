@@ -12,7 +12,7 @@ declare const HOSTED_API_BASE_URL: string;
     providedIn: 'root'
 })
 export class TriviaQuestionService{
-    private apiUrl = 'http://localhost:8080';
+    private apiUrl = (typeof HOSTED_API_BASE_URL !== undefined) ? HOSTED_API_BASE_URL :'http://localhost:8080';
 
     constructor(private http: HttpClient, private sessionService:SessionService){}
 
