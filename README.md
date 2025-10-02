@@ -28,7 +28,7 @@ The backend is responsible for API endpoints, logic, and fetching categories and
 ### Setup, Build, and Run
 Clone the Repository:
 
-git clone [https://github.com/zeinsansi/trivia_assessment.git](https://github.com/zeinsansi/trivia_assessment.git)
+git clone https://github.com/afedjah/Trivia_opdracht.git
 cd Trivia_backend
 
 Run the Application (Development Mode): This command builds and runs the application directly, starting the API on http://localhost:8080.
