@@ -10,7 +10,7 @@
         "name": "trivia-backend",
         "path": "Trivia_backend/demo", 
         "servicePort": 8081,
-        "buildCommand": "mvn clean package -DskipTests",
+        "buildCommand": "./mvnw clean package -DskipTests",
         "startCommand": "java -jar target/demo-0.0.1-SNAPSHOT.jar --server.port=8081"
       },
       {
