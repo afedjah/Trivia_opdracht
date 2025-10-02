@@ -6,6 +6,8 @@ import { AnswerDTO } from "../models/answer.dto";
 import { TriviaCategory } from "../models/category.dto";
 import { SessionService } from "./trivia.session.service";
 
+declare const HOSTED_API_BASE_URL: string;
+
 @Injectable({
     providedIn: 'root'
 })
