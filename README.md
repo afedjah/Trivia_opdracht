@@ -5,7 +5,7 @@ Try the game out by visting the following link:
 
 # Technology stack
 ## Backend
-* Java 25
+* Java 21
 * Spring boot 3.x
 * Maven for dependency injection
 * RESTful API architecture
