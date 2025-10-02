@@ -5,15 +5,13 @@ import { QuestionDTO } from "../models/question.dto";
 import { AnswerDTO } from "../models/answer.dto";
 import { TriviaCategory } from "../models/category.dto";
 import { SessionService } from "./trivia.session.service";
-
-declare const HOSTED_API_BASE_URL: string;
+import { environment } from "../environment/environment";
 
 @Injectable({
     providedIn: 'root'
 })
 export class TriviaQuestionService{
-    private apiUrl = (typeof HOSTED_API_BASE_URL !== undefined) ? HOSTED_API_BASE_URL :'http://localhost:8080';
-
+    private apiUrl = environment.apiUrl;
     constructor(private http: HttpClient, private sessionService:SessionService){}
 
     getCategories() : Observable<TriviaCategory[]>{
