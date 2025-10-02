@@ -1,5 +1,5 @@
 # About
-A Simple Trivia game that's made with Java 25 spring boot and Angular.
+A Simple Trivia game that's made with Java 21 spring boot and Angular.
 
 Try the game out by visting the following link: 
 
