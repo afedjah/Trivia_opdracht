@@ -29,11 +29,11 @@ The backend is responsible for API endpoints, logic, and fetching categories and
 Clone the Repository:
 ```
 git clone https://github.com/afedjah/Trivia_opdracht.git
-cd Trivia_backend
+cd Trivia_backend/demo
 ```
 Run the Application (Development Mode): This command builds and runs the application directly, starting the API on http://localhost:8080.
 ```
-mvn spring-boot:run
+.\mvnw spring-boot:run
 ```
 Testing
 To run the unit and integration tests, use the following command in the backend folder:
