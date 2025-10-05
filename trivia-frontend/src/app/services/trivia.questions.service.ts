@@ -10,7 +10,7 @@ import { SessionService } from "./trivia.session.service";
     providedIn: 'root'
 })
 export class TriviaQuestionService{
-    private apiUrl = "https://triviabackend-production.up.railway.app";
+    private apiUrl = "http://localhost:8080";
     constructor(private http: HttpClient, private sessionService:SessionService){}
 
     getCategories() : Observable<TriviaCategory[]>{
