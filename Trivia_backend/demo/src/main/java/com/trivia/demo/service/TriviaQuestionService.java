@@ -4,46 +4,33 @@ import com.trivia.demo.exception.CategoryNotFoundException;
 import com.trivia.demo.exception.InvalidRequestException;
 import com.trivia.demo.exception.QuestionNotFoundException;
 import com.trivia.demo.exception.SessionNotFoundException;
+import com.trivia.demo.intefaces.IQuestionMap;
 import com.trivia.demo.model.*;
 import org.apache.commons.text.StringEscapeUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import reactor.util.retry.Retry;
 
-import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class TriviaQuestionService {
 
-    private final WebClient webClient;
-    private final Map<String, Map<String, Question>> questions = new ConcurrentHashMap<>();
+    private final OpenTriviaApiClient apiClient;
     private final TriviaSessionService sessionService;
+    private final IQuestionMap questionMap;
 
-    private static final String TRIVIA_API_URL = "https://opentdb.com";
-    private static final Integer MAX_API_LIMIT = 50;
+    private static final int MAX_API_LIMIT = 50;
 
-    @Autowired
-    public TriviaQuestionService(TriviaSessionService sessionService){
-        this.webClient = WebClient.builder().baseUrl(TRIVIA_API_URL).build();
+    public TriviaQuestionService(OpenTriviaApiClient apiClient,TriviaSessionService sessionService,IQuestionMap questionMap){
+        this.apiClient = apiClient;
         this.sessionService = sessionService;
-    }
-
-    public TriviaQuestionService(TriviaSessionService sessionService,WebClient webClient){
-        this.sessionService = sessionService;
-        this.webClient = webClient;
+        this.questionMap = questionMap;
     }
 
     public Mono<List<TriviaCategory>> getCategories(){
-        return webClient.get()
-                .uri("/api_category.php")
-                .retrieve()
-                .bodyToMono(TriviaCategoriesResponse.class)
+        return apiClient.getCategories()
                 .map(TriviaCategoriesResponse::getTrivia_categories)
-                .onErrorMap(ex -> new RuntimeException("Kon categorieen niet ophalen. Error: " + ex.getMessage()));
+                .onErrorMap(ex -> new RuntimeException("Kon category niet ophalen. Error: " + ex.getMessage()));
     }
 
     public Mono<List<QuestionDTO>> getQuestions(Integer amount, Long categoryId, String sessionId) {
@@ -51,8 +38,7 @@ public class TriviaQuestionService {
             throw new InvalidRequestException("Aantal vragen moet minimaal 1 zijn.");
         }
         return this.sessionService.getOrCreateSessionToken(sessionId)
-                .flatMap(token ->
-                this.getTotalAmountOfQuestionsPerCategory(categoryId)
+                .flatMap(token -> this.apiClient.getTotalAmountOfQuestionsForCategory(categoryId)
                 .flatMap(total -> {
                     if(total == null || total == 0){
                         throw new CategoryNotFoundException(categoryId);
@@ -67,12 +53,12 @@ public class TriviaQuestionService {
         return this.fetchQuestionsFromAPI(sessionId,amount,categoryId)
                 .flatMap(response -> {
                     if(response == null){
-                        return Mono.error(new RuntimeException("Trivia API returned null"));
+                        return Mono.error(new RuntimeException("Trivia API retourneerde null"));
                     }
                     int code = response.getResponse_code();
                     if(code == 3 || code == 4){
-                        return this.sessionService.resetToken(sessionId)
-                                .flatMap(newToken -> this.fetchQuestionsFromAPI(newToken, amount,categoryId))
+                        return this.sessionService.ensureValidToken(sessionId,code)
+                                .flatMap(newToken -> this.apiClient.getQuestions(amount,categoryId,newToken))
                                 .map(r -> mapQuestions(sessionId,r.getResults()));
                     }
                     else{
@@ -84,21 +70,13 @@ public class TriviaQuestionService {
 
     private Mono<TriviaQuestionsResponse> fetchQuestionsFromAPI(String sessionId, Integer amount, Long categoryId){
         return this.sessionService.getOrCreateSessionToken(sessionId)
-                .flatMap(token ->this.webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/api.php")
-                        .queryParam("amount",amount)
-                        .queryParam("token", token)
-                        .queryParamIfPresent("category",Optional.ofNullable(categoryId))
-                        .build())
-                .retrieve()
-                .bodyToMono(TriviaQuestionsResponse.class))
-                .switchIfEmpty(Mono.error(new RuntimeException("Trivia API retourneerde een empty response.")))
+                .flatMap(token -> this.apiClient.getQuestions(amount,categoryId, token))
                 .onErrorMap(ex -> new RuntimeException("Kon Trivia API niet benaderen. Error: " + ex.getMessage()));
     }
 
+
     public boolean checkAnswer(String sessionId,AnswerDTO answerDTO){
-        Map<String,Question> questionsForUser = this.questions.get(sessionId);
+        Map<String,Question> questionsForUser = this.questionMap.getQuestionsForSession(sessionId);
         if(questionsForUser == null){
             throw new SessionNotFoundException(sessionId);
         }
@@ -110,17 +88,15 @@ public class TriviaQuestionService {
     }
 
     private List<QuestionDTO> mapQuestions(String sessionId,List<Question> questions){
-        Map<String, Question> questionsForUser = new ConcurrentHashMap<>();
         List<QuestionDTO> questionDTOs = new ArrayList<>();
         for(Question q : questions){
             if(q.getQuestion() == null){
                 throw new IllegalArgumentException("Question text mag niet null zijn");
             }
-            decodeHtmlForQuestion(q);
-            questionsForUser.put(q.getQuestion(),q);
+            this.decodeHtmlForQuestion(q);
+            this.questionMap.addQuestion(sessionId,q);
             questionDTOs.add(new QuestionDTO(q));
         }
-        this.questions.put(sessionId,questionsForUser);
         return questionDTOs;
     }
 
@@ -133,29 +109,5 @@ public class TriviaQuestionService {
                     .toList();
             question.setIncorrect_answers(incorrectAnswersDecoded);
         }
-    }
-
-    private Mono<Integer> getTotalAmountOfQuestionsPerCategory(Long categoryId) {
-        return webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/api_count.php")
-                        .queryParam("category", categoryId)
-                        .build()
-                ).retrieve()
-                .bodyToMono(CategoryStatistics.class)
-                .map(categoryStatistics -> categoryStatistics.getCategory_question_count().getTotal_question_count())
-                .onErrorMap(ex -> new RuntimeException("Kon category niet fetchen. Error: " + ex.getMessage()));
-    }
-
-    public Map<String,Map<String, Question>> getQuestionsMap(){
-        return Collections.unmodifiableMap(this.questions);
-    }
-
-    public void addQuestionForTest(String sessionId,Question question){
-        if(sessionId == null){
-            throw new IllegalArgumentException("sessionId mag niet null zijn");
-        }
-        Map<String,Question> questionsForUser = this.questions.computeIfAbsent(sessionId,k ->new ConcurrentHashMap<>());
-        questionsForUser.put(question.getQuestion(),question);
     }
 }
