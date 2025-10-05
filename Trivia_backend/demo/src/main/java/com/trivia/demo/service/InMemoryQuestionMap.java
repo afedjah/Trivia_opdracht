@@ -2,7 +2,6 @@ package com.trivia.demo.service;
 
 import com.trivia.demo.intefaces.IQuestionMap;
 import com.trivia.demo.model.Question;
-import org.springframework.context.annotation.Bean;
 
 import java.util.Collections;
 import java.util.Map;
