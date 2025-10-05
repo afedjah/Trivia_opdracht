@@ -1,7 +1,7 @@
 # About
 A Simple Trivia game that's made with Java 21 spring boot and Angular.
 
-Try the game out by visting the following link: 
+Try the game out by visting the following link: trivia-frontend-production.up.railway.app
 
 # Technology stack
 ## Backend
