@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core"; 
+import { Injectable } from "@angular/core";
 import { HttpClient, HttpHeaders} from "@angular/common/http";
 import { Observable } from "rxjs";
 import { QuestionDTO } from "../models/question.dto";
@@ -10,7 +10,7 @@ import { SessionService } from "./trivia.session.service";
     providedIn: 'root'
 })
 export class TriviaQuestionService{
-    private apiUrl = "http://localhost:8080";
+    private apiUrl = "https://triviabackend-production.up.railway.app";
     constructor(private http: HttpClient, private sessionService:SessionService){}
 
     getCategories() : Observable<TriviaCategory[]>{
