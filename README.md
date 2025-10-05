@@ -30,7 +30,7 @@ cd Trivia_backend/demo
 ```
 Run the Application (Development Mode): This command builds and runs the application directly, starting the API on http://localhost:8080.
 ```
-.\mvnw spring-boot:run
+./mvnw spring-boot:run
 ```
 ### Testing
 To run the tests, use the following command in the backend folder:
